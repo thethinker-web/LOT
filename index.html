@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Language of Intuition — Social Consensus Simulator</title>
+    <meta name="description" content="A simulation of social consensus — stake $STrust, shape shared truth. Experience the Intuition Protocol in action.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-1: #071124;
+            --bg-2: #0b1220;
+            --panel: #0f1724;
+            --accent: #44e0c2;
+            --accent2: #6ad1ff;
+            --muted: #9aa7b2;
+            --glass: rgba(255,255,255,0.02);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            background: linear-gradient(120deg, var(--bg-1), var(--bg-2));
+            font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            color: #e6f0f3;
+            overflow: hidden;
+        }
+
+        /* Animated subtle gradient background */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            background: 
+                radial-gradient(800px 300px at 10% 20%, rgba(80,170,200,0.04), transparent),
+                radial-gradient(600px 400px at 80% 80%, rgba(100,80,200,0.03), transparent);
+            animation: bgShift 18s linear infinite alternate;
+            mix-blend-mode: screen;
+        }
+
+        @keyframes bgShift {
+            0% { 
+                transform: translateY(0) scale(1) rotate(0deg); 
+                filter: hue-rotate(0deg) saturate(1); 
+            }
+            50% { 
+                transform: translateY(-8px) scale(1.01) rotate(-0.6deg); 
+                filter: hue-rotate(8deg) saturate(1.05); 
+            }
+            100% { 
+                transform: translateY(0) scale(1) rotate(0deg); 
+                filter: hue-rotate(0deg) saturate(1); 
+            }
+        }
+
+        /* Main layout */
+        .appwrap {
+            display: flex;
+            height: 100vh;
+            align-items: center;
+            justify-content: center;
+            padding: 28px;
+            gap: 18px;
+        }
+
+        .left, .right {
+            background: linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01));
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 10px 30px rgba(5,12,20,0.6);
+            border: 1px solid rgba(255,255,255,0.03);
+        }
+
+        .left {
+            width: 62%;
+            min-width: 640px;
+            height: 82vh;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .right {
+            width: 320px;
+            min-height: 420px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .title {
+            font-size: 20px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .subtitle {
+            font-size: 13px;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+
+        .panel {
+            background: var(--glass);
+            border-radius: 10px;
+            padding: 12px;
+        }
+
+        .caption {
+            text-align: center;
+            padding: 18px;
+        }
+
+        .caption .big {
+            font-weight: 700;
+            color: var(--accent);
+            font-size: 22px;
+        }
+
+        /* Claims feed */
+        .claimFeed {
+            flex: 1;
+            overflow: auto;
+            display: flex;
+            gap: 10px;
+            flex-direction: column;
+            padding: 10px;
+        }
+
+        .claim {
+            background: linear-gradient(180deg, rgba(255,255,255,0.012), rgba(255,255,255,0.006));
+            padding: 12px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid rgba(255,255,255,0.02);
+            cursor: pointer;
+            transition: transform 0.12s ease, box-shadow 0.12s ease;
+        }
+
+        .claim:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(5,12,20,0.5);
+        }
+
+        .claim .text {
+            font-size: 15px;
+            color: #eaf9f6;
+        }
+
+        .claim .meta {
+            font-size: 13px;
+            color: var(--muted);
+            text-align: right;
+        }
+
+        /* Right panel HUD */
+        .wallet {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 12px;
+            border-radius: 12px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.01), transparent);
+        }
+
+        .hud-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .balance {
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        .rep {
+            font-weight: 800;
+            color: var(--accent2);
+        }
+
+        .small {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        /* Buttons */
+        .btn {
+            background: linear-gradient(180deg, var(--accent), var(--accent2));
+            color: #022126;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 0;
+            cursor: pointer;
+            font-weight: 700;
+            box-shadow: 0 8px 24px rgba(60,200,180,0.08);
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(60,200,180,0.12);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn.ghost {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.06);
+            color: var(--muted);
+            font-weight: 600;
+            padding: 8px 10px;
+        }
+
+        .btn.ghost:hover {
+            background: rgba(255,255,255,0.03);
+        }
+
+        .btn.small {
+            padding: 6px 8px;
+            font-weight: 600;
+        }
+
+        /* Claim detail panel */
+        .claimDetail {
+            margin-top: 8px;
+            padding: 12px;
+            border-radius: 10px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.01), transparent);
+            border: 1px solid rgba(255,255,255,0.02);
+        }
+
+        .bigButtons {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        input[type="range"] {
+            width: 150px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            height: 6px;
+        }
+
+        /* Graph canvas */
+        .graphWrap {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #graph {
+            width: 100%;
+            height: 260px;
+            border-radius: 10px;
+            background: linear-gradient(180deg, rgba(10,18,28,0.32), transparent);
+            border: 1px solid rgba(255,255,255,0.02);
+            display: block;
+        }
+
+        /* Intro overlay */
+        #introOverlay {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            background: linear-gradient(180deg, rgba(1,6,12,0.7), rgba(3,8,16,0.85));
+            backdrop-filter: blur(4px);
+        }
+
+        #introCard {
+            width: 88%;
+            max-width: 960px;
+            padding: 28px;
+            border-radius: 14px;
+            position: relative;
+            box-shadow: 0 18px 60px rgba(4,10,20,0.75);
+            border: 1px solid rgba(255,255,255,0.03);
+            background: linear-gradient(180deg, rgba(15,23,36,0.9), rgba(11,18,30,0.95));
+        }
+
+        #introText {
+            color: #dffaf3;
+            font-size: 18px;
+            line-height: 1.6;
+            text-align: center;
+            min-height: 220px;
+        }
+
+        #beginBtn {
+            margin-top: 18px;
+            display: inline-block;
+        }
+
+        /* Tutorial tooltip */
+        .tutorial-tooltip {
+            position: fixed;
+            z-index: 12000;
+            background: linear-gradient(180deg, rgba(6,10,14,0.96), rgba(10,14,18,0.98));
+            border-radius: 12px;
+            padding: 12px 14px;
+            color: #e6fbf7;
+            box-shadow: 0 12px 40px rgba(2,6,10,0.6);
+            border: 1px solid rgba(60,200,180,0.06);
+            width: 320px;
+            max-width: calc(100vw - 40px);
+            transition: transform 0.18s ease, opacity 0.18s ease;
+            backdrop-filter: blur(8px);
+        }
+
+        .tooltip-title {
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .tooltip-body {
+            font-size: 14px;
+            color: #dff7f1;
+            line-height: 1.45;
+        }
+
+        .tooltip-actions {
+            text-align: right;
+            margin-top: 10px;
+        }
+
+        .tooltip-actions button {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.06);
+            color: var(--muted);
+            padding: 6px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .tooltip-arrow {
+            width: 0;
+            height: 0;
+            position: absolute;
+            z-index: 12001;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 10px solid rgba(6,10,14,0.98);
+            filter: drop-shadow(0 6px 14px rgba(0,0,0,0.35));
+        }
+
+        /* Highlight box */
+        .highlight {
+            position: fixed;
+            z-index: 11000;
+            border-radius: 12px;
+            pointer-events: none;
+            box-shadow: 0 12px 40px rgba(6,16,20,0.45), inset 0 0 40px rgba(68,224,194,0.03);
+            border: 1px solid rgba(68,224,194,0.06);
+            transition: all 0.22s cubic-bezier(0.2,0.9,0.2,1);
+        }
+
+        /* Toast notifications */
+        .toast {
+            position: fixed;
+            left: 28px;
+            bottom: 24px;
+            z-index: 13000;
+            padding: 10px 12px;
+            background: rgba(4,8,12,0.9);
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.03);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            color: #dffcf6;
+            backdrop-filter: blur(8px);
+        }
+
+        /* Responsive design */
+        @media (max-width: 920px) {
+            .left {
+                width: 100%;
+                min-width: 0;
+                height: 68vh;
+            }
+            .right {
+                display: none;
+            }
+            .appwrap {
+                padding: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .appwrap {
+                padding: 8px;
+            }
+            .left {
+                height: 72vh;
+            }
+            .title {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Intro cinematic overlay -->
+    <div id="introOverlay" role="dialog" aria-live="polite">
+        <div id="introCard">
+            <div id="introText"></div>
+            <div style="text-align:center">
+                <button id="beginBtn" class="btn" aria-label="Begin Tutorial">Begin Tutorial</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main application -->
+    <div class="appwrap" id="appRoot" role="application" aria-hidden="true">
+        <div class="left panel">
+            <div class="title">🌐 The Language of Intuition</div>
+            <div class="subtitle">A simulation of social consensus — stake <b>$STrust</b>, shape shared truth.</div>
+
+            <div class="panel caption">
+                <div class="big">Cooperation, not Competition</div>
+            </div>
+
+            <div class="panel claimFeed" id="claimFeed" aria-live="polite"></div>
+
+            <!-- Create Claim Button -->
+            <button id="createClaimBtn" class="btn ghost" style="margin-top: 8px;">＋ Create Claim</button>
+
+            <div style="display:flex;gap:12px;align-items:center;margin-top:8px">
+                <div class="panel" style="flex:1">
+                    <div style="font-size:13px;color:var(--muted)">Live Semantic Map</div>
+                    <div class="graphWrap"><canvas id="graph"></canvas></div>
+                </div>
+
+                <div class="panel" style="width:220px">
+                    <div style="font-size:13px;color:var(--muted)">Active Claim</div>
+                    <div id="claimDetail" class="claimDetail">
+                        <div id="detailText" style="font-weight:700">— Select a claim —</div>
+                        <div id="detailMeta" class="small" style="margin-top:6px">No selection</div>
+
+                        <div style="display:flex;gap:8px;align-items:center;margin-top:10px">
+                            <input id="stakeRange" type="range" min="1" max="200" value="20" />
+                            <div style="width:44px;text-align:right;font-weight:700" id="stakeValue">20</div>
+                        </div>
+
+                        <div class="bigButtons">
+                            <button id="btnAgree" class="btn" disabled>Agree</button>
+                            <button id="btnDisagree" class="btn" disabled style="background:linear-gradient(180deg,#ff9b9b,#ff6b6b);">Disagree</button>
+                        </div>
+
+                        <div style="display:flex;gap:8px;margin-top:8px">
+                            <button id="btnObserve" class="btn ghost" style="flex:1" disabled>Observe</button>
+                            <button id="btnFork" class="btn ghost" style="flex:1" disabled>Fork</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top:8px;font-size:12px;color:var(--muted);text-align:center">Prototype — local demo</div>
+        </div>
+
+        <div class="right panel">
+            <!-- Tutorial panel -->
+            <div class="panel" id="tutorialPanel">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                    <div style="font-weight:700">Tutorial</div>
+                    <div class="small" style="color:var(--muted)">Onboarding</div>
+                </div>
+                <div class="small" style="margin-top:8px">Run or restart the guided tour.</div>
+                <div style="margin-top:10px">
+                    <button id="startTutorialBtn" class="btn small">Start Tutorial</button>
+                </div>
+            </div>
+
+            <!-- Balance & reputation -->
+            <div class="wallet panel">
+                <div class="hud-row"><div class="small">Balance</div><div class="small">Reputation</div></div>
+                <div class="hud-row">
+                    <div class="balance" id="balance">1000 $STrust</div>
+                    <div class="rep" id="reputation">0</div>
+                </div>
+            </div>
+
+            <!-- Activity log -->
+            <div class="panel">
+                <div style="font-weight:700">Activity Log</div>
+                <div id="log" class="small" style="margin-top:8px">No activity yet.</div>
+            </div>
+
+            <!-- Status -->
+            <div class="panel">
+                <div style="font-weight:700">Status</div>
+                <div style="margin-top:8px"><span id="statusBox" class="small">Idle</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tooltip and highlight elements -->
+    <div id="tooltip" class="tutorial-tooltip" style="display:none; opacity:0;"></div>
+    <div id="tooltipArrow" class="tooltip-arrow" style="display:none;"></div>
+    <div id="highlight" class="highlight" style="display:none;"></div>
+
+    <script>
+        // Game state and core functionality
+        const state = { 
+            balance: 1000, 
+            reputation: 0, 
+            claims: [], 
+            selectedClaimId: null, 
+            inTutorial: false, 
+            tutorialStep: 0 
+        };
+
+        // DOM elements
+        const claimFeed = document.getElementById('claimFeed');
+        const balanceEl = document.getElementById('balance');
+        const repEl = document.getElementById('reputation');
+        const logEl = document.getElementById('log');
+        const statusBox = document.getElementById('statusBox');
+        const stakeRange = document.getElementById('stakeRange');
+        const stakeValue = document.getElementById('stakeValue');
+        const btnAgree = document.getElementById('btnAgree');
+        const btnDisagree = document.getElementById('btnDisagree');
+        const btnObserve = document.getElementById('btnObserve');
+        const btnFork = document.getElementById('btnFork');
+        const createClaimBtn = document.getElementById('createClaimBtn');
+        const tooltip = document.getElementById('tooltip');
+        const tooltipArrow = document.getElementById('tooltipArrow');
+        const highlight = document.getElementById('highlight');
+        const graphCanvas = document.getElementById('graph');
+        const gctx = graphCanvas.getContext('2d');
+
+        // Utility functions
+        function updateHUD() { 
+            balanceEl.textContent = `${state.balance} $STrust`; 
+            repEl.textContent = `${state.reputation}`; 
+        }
+
+        function pushLog(msg) { 
+            logEl.textContent = msg; 
+        }
+
+        function escapeHtml(s) { 
+            return s.replace(/&/g,'&amp;').replace(/</g,'&lt;'); 
+        }
+
+        function hexToRgba(hex, a) { 
+            hex = hex.replace('#',''); 
+            const r = parseInt(hex.slice(0,2),16), 
+                  g = parseInt(hex.slice(2,4),16), 
+                  b = parseInt(hex.slice(4,6),16); 
+            return `rgba(${r},${g},${b},${a})`; 
+        }
+
+        function shorten(s, max) { 
+            return s.length > max ? s.slice(0, max-1) + '…' : s; 
+        }
+
+        // Stake slider functionality
+        stakeRange.oninput = () => stakeValue.textContent = stakeRange.value;
+
+        // Create Claim Feature
+        function createNewClaim() {
+            const claimText = prompt('Enter your new claim:');
+            if (claimText && claimText.trim() !== '') {
+                const newClaim = addClaim(claimText.trim(), 'You');
+                pushLog(`You created a new claim: "${claimText}"`);
+                setTimeout(() => selectClaim(newClaim.id), 100);
+            } else if (claimText !== null) {
+                alert('Please enter a valid claim.');
+            }
+        }
+        createClaimBtn.onclick = createNewClaim;
+
+        // Reputation Engine
+        function updateReputation(claimId) {
+            const claim = state.claims.find(c => c.id === claimId);
+            if (!claim) return;
+
+            const stakersWithStake = claim.attestations.filter(a => a.stake > 0);
+            if (stakersWithStake.length < 2) return;
+
+            const forStake = claim.attestations.filter(a => a.belief > 0).reduce((sum, a) => sum + a.stake, 0);
+            const againstStake = claim.attestations.filter(a => a.belief < 0).reduce((sum, a) => sum + a.stake, 0);
+            
+            if (forStake === againstStake) return;
+            
+            const winningSide = forStake > againstStake ? 1 : -1;
+            const totalWinningStake = winningSide === 1 ? forStake : againstStake;
+
+            const winningStakers = claim.attestations
+                .filter(a => a.belief === winningSide && a.stake > 0)
+                .sort((a, b) => a.timestamp - b.timestamp);
+                
+            const earlyBackerCount = Math.max(1, Math.floor(winningStakers.length * 0.25));
+            const earlyBackers = winningStakers.slice(0, earlyBackerCount).map(a => a.user);
+
+            let reputationChanges = [];
+            
+            claim.attestations.forEach(attestation => {
+                if (attestation.stake === 0) return;
+                
+                if (attestation.belief === winningSide) {
+                    const stakeRatio = attestation.stake / totalWinningStake;
+                    let repGain = 1 * stakeRatio * 2;
+                    
+                    if (earlyBackers.includes(attestation.user)) {
+                        repGain += 5;
+                        if (attestation.user === 'Player') {
+                            reputationChanges.push(`Early backer bonus! +5 Rep`);
+                        }
+                    }
+                    
+                    if (attestation.user === 'Player') {
+                        const roundedGain = Math.round(repGain);
+                        state.reputation += roundedGain;
+                        reputationChanges.push(`+${roundedGain} Rep for accurate stake`);
+                    }
+                    
+                } else {
+                    if (attestation.user === 'Player') {
+                        state.reputation -= 1;
+                        reputationChanges.push(`-1 Rep for incorrect stake`);
+                    }
+                }
+            });
+
+            if (reputationChanges.length > 0) {
+                pushLog(`Reputation: ${reputationChanges.join(', ')}`);
+            }
+
+            updateHUD();
+        }
+
+        // Claims management
+        function addClaim(content, origin = 'Network') {
+            const c = { 
+                id: Date.now() + Math.floor(Math.random() * 1000), 
+                content, 
+                origin, 
+                attestations: [] 
+            };
+            state.claims.push(c); 
+            renderClaims(); 
+            drawGraph(); 
+            return c;
+        }
+
+        function renderClaims() {
+            claimFeed.innerHTML = '';
+            for (const c of state.claims) {
+                const d = document.createElement('div'); 
+                d.className = 'claim';
+                const left = document.createElement('div');
+                left.style.display = 'flex'; 
+                left.style.flexDirection = 'column';
+                const t = document.createElement('div'); 
+                t.className = 'text'; 
+                t.textContent = c.content;
+                const m = document.createElement('div'); 
+                m.className = 'meta'; 
+                const agree = c.attestations.filter(a => a.belief > 0).length; 
+                const dis = c.attestations.filter(a => a.belief < 0).length;
+                m.innerHTML = `${agree} ✓ · ${dis} ✕ • ${c.origin}`;
+                left.appendChild(t); 
+                left.appendChild(m);
+                d.appendChild(left);
+                d.onclick = () => { selectClaim(c.id); };
+                claimFeed.appendChild(d);
+            }
+        }
+
+        function selectClaim(id) {
+            const c = state.claims.find(x => x.id === id);
+            if (!c) return;
+            state.selectedClaimId = id;
+            document.getElementById('detailText').textContent = c.content;
+            const pos = c.attestations.filter(a => a.belief > 0).reduce((s, a) => s + a.stake, 0);
+            const neg = c.attestations.filter(a => a.belief < 0).reduce((s, a) => s + a.stake, 0);
+            document.getElementById('detailMeta').textContent = `By ${c.origin} · Stakes: ${pos}✓ / ${neg}✕`;
+            btnAgree.disabled = false; 
+            btnDisagree.disabled = false; 
+            btnObserve.disabled = false; 
+            btnFork.disabled = false;
+            statusBox.textContent = "Selected";
+            drawGraph();
+        }
+
+        function clearSelection() {
+            state.selectedClaimId = null; 
+            document.getElementById('detailText').textContent = '— Select a claim —'; 
+            document.getElementById('detailMeta').textContent = 'No selection';
+            btnAgree.disabled = true; 
+            btnDisagree.disabled = true; 
+            btnObserve.disabled = true; 
+            btnFork.disabled = true;
+            statusBox.textContent = "Idle"; 
+            drawGraph();
+        }
+
+        // Attestation functions
+        function attest(belief) {
+            const stake = belief === 0 ? 0 : parseInt(stakeRange.value);
+            if (stake > state.balance) { 
+                alert('Not enough $STrust. Lower stake.'); 
+                return; 
+            }
+            const c = state.claims.find(x => x.id === state.selectedClaimId); 
+            if (!c) { 
+                alert('Select a claim first.'); 
+                return; 
+            }
+            state.balance -= stake;
+            c.attestations.push({ user: 'Player', belief, stake, timestamp: Date.now() });
+            pushLog(`You ${belief > 0 ? 'agreed' : 'disagreed'} and staked ${stake} $STrust on: "${c.content}"`);
+            updateHUD(); 
+            renderClaims(); 
+            drawGraph(); 
+            statusBox.textContent = "Attested";
+            updateReputation(c.id);
+        }
+
+        btnAgree.onclick = () => attest(1);
+        btnDisagree.onclick = () => attest(-1);
+        btnObserve.onclick = () => { 
+            const c = state.claims.find(x => x.id === state.selectedClaimId); 
+            if (!c) return; 
+            c.attestations.push({ user: 'Player', belief: 0, stake: 0, timestamp: Date.now() }); 
+            pushLog('You observed this claim.'); 
+            renderClaims(); 
+            drawGraph(); 
+        };
+        btnFork.onclick = () => { 
+            const c = state.claims.find(x => x.id === state.selectedClaimId); 
+            if (!c) return; 
+            const t = prompt('Edit the forked claim:', c.content); 
+            if (t) addClaim(t, 'Player'); 
+        };
+
+        // Semantic map visualization
+        let nodePositions = [];
+        function drawGraph() {
+            graphCanvas.width = graphCanvas.clientWidth;
+            graphCanvas.height = graphCanvas.clientHeight;
+            gctx.clearRect(0, 0, graphCanvas.width, graphCanvas.height);
+            const nodes = state.claims;
+            if (nodes.length === 0) return;
+            const cx = graphCanvas.width / 2, cy = graphCanvas.height / 2;
+            const r = Math.min(cx, cy) - 80;
+            
+            if (nodePositions.length !== nodes.length) {
+                nodePositions = nodes.map((n, i) => {
+                    const angle = (i / nodes.length) * Math.PI * 2 - Math.PI / 2;
+                    const baseX = cx + Math.cos(angle) * r;
+                    const baseY = cy + Math.sin(angle) * r;
+                    return { baseX, baseY, angle, phase: Math.random() * Math.PI * 2, jitter: 3 + Math.random() * 8 };
+                });
+            }
+            
+            const t = Date.now() / 1000;
+            nodes.forEach((n, i) => {
+                const posObj = nodePositions[i];
+                const fx = Math.cos(t * 0.6 + posObj.phase) * posObj.jitter;
+                const fy = Math.sin(t * 0.8 + posObj.phase) * posObj.jitter;
+                const x = posObj.baseX + fx;
+                const y = posObj.baseY + fy;
+                
+                const posStake = n.attestations.filter(a => a.belief > 0).reduce((s, a) => s + a.stake, 0);
+                const negStake = n.attestations.filter(a => a.belief < 0).reduce((s, a) => s + a.stake, 0);
+                const strength = Math.min(1, (posStake + negStake) / 400);
+                
+                let color = '#6ad1ff'; 
+                if (posStake > negStake) color = '#23d3b0'; 
+                else if (negStake > posStake) color = '#ff6b6b';
+                
+                gctx.beginPath(); 
+                gctx.moveTo(cx, cy); 
+                gctx.lineTo(x, y);
+                gctx.strokeStyle = hexToRgba(color, 0.06 + strength * 0.45); 
+                gctx.lineWidth = 10 * (0.2 + strength); 
+                gctx.stroke();
+                
+                const nodeR = 14 + Math.min(20, (posStake + negStake) / 30);
+                gctx.beginPath(); 
+                gctx.arc(x, y, nodeR, 0, Math.PI * 2);
+                gctx.fillStyle = hexToRgba(color, 0.14 + strength * 0.5); 
+                gctx.fill();
+                gctx.strokeStyle = color; 
+                gctx.lineWidth = 2; 
+                gctx.stroke();
+                
+                gctx.fillStyle = 'rgba(240,250,255,0.96)'; 
+                gctx.font = '12px Inter, Arial';
+                gctx.fillText(shorten(n.content, 28), x + nodeR + 10, y + 4);
+                
+                if (state.selectedClaimId === n.id) {
+                    gctx.beginPath(); 
+                    gctx.arc(x, y, nodeR + 12, 0, Math.PI * 2); 
+                    gctx.strokeStyle = 'rgba(140,220,200,0.12)'; 
+                    gctx.lineWidth = 6; 
+                    gctx.stroke();
+                }
+            });
+            
+            requestAnimationFrame(() => drawGraph());
+        }
+
+        // Tutorial system
+        const tutorialSteps = [
+            { id: 'balance', title: 'Your Balance', body: ['This is your $STrust balance — the currency of conviction.', 'Stake $STrust to back claims you believe in.'], targetSelector: '.wallet .balance' },
+            { id: 'reputation', title: 'Reputation', body: ['Reputation signals how credible the Network considers you.', 'Accurate early signals grow your reputation.'], targetSelector: '.wallet .rep' },
+            { id: 'activity', title: 'Activity Log', body: ['See your recent actions here.', 'It tracks what you staked and why.'], targetSelector: '#log' },
+            { id: 'status', title: 'Status', body: ['Your current status appears here (e.g., Attested, Idle).', 'Useful to track your progress.'], targetSelector: '#statusBox' },
+            { id: 'map', title: 'Semantic Map', body: ['The map visualizes claims and consensus.', 'Nodes and links reflect how the Network thinks.'], targetSelector: '#graph' },
+            { id: 'create', title: 'Create Your Own', body: ['Click "Create Claim" to add your own ideas to the network.', 'This is how new knowledge enters the system.'], targetSelector: '#createClaimBtn' },
+            { id: 'end', title: 'You\'re ready', body: ['You are now a Novice Curator.', 'Cooperate, curate, and shape shared truth. 🌐✨'], targetSelector: '#claimFeed' }
+        ];
+
+        function showTooltipForStep(stepIndex) {
+            const step = tutorialSteps[stepIndex];
+            if (!step) return hideTooltip();
+            const target = document.querySelector(step.targetSelector) || document.querySelector('body');
+            const rect = target.getBoundingClientRect();
+            
+            tooltip.innerHTML = `<div class="tooltip-title">${escapeHtml(step.title)}</div><div class="tooltip-body">${step.body.map(l => escapeHtml(l)).join('<div style="height:6px"></div>')}</div><div class="tooltip-actions"><button id="tooltipNext">Next</button></div>`;
+            tooltip.style.display = 'block'; 
+            tooltip.style.opacity = 1;
+
+            const margin = 12;
+            let left = rect.right + margin;
+            let top = rect.top;
+            if (left + 340 > window.innerWidth) {
+                left = rect.left;
+                top = rect.bottom + margin;
+                tooltipArrow.style.borderTop = '10px solid rgba(6,10,14,0.98)';
+                tooltipArrow.style.transform = 'rotate(180deg)';
+                tooltipArrow.style.left = (left + 20) + 'px';
+                tooltipArrow.style.top = (top - 10) + 'px';
+            } else {
+                tooltipArrow.style.borderTop = '10px solid rgba(6,10,14,0.98)';
+                tooltipArrow.style.transform = 'rotate(90deg)';
+                tooltipArrow.style.left = (rect.right + 2) + 'px';
+                tooltipArrow.style.top = (rect.top + 16) + 'px';
+            }
+
+            if (top + 160 > window.innerHeight) top = Math.max(12, window.innerHeight - 180);
+            tooltip.style.left = left + 'px';
+            tooltip.style.top = top + 'px';
+
+            const pad = 8;
+            highlight.style.display = 'block';
+            highlight.style.left = (rect.left - pad) + 'px';
+            highlight.style.top = (rect.top - pad) + 'px';
+            highlight.style.width = (rect.width + pad * 2) + 'px';
+            highlight.style.height = (rect.height + pad * 2) + 'px';
+
+            tooltipArrow.style.display = 'block';
+
+            setTimeout(() => { 
+                const btn = document.getElementById('tooltipNext'); 
+                if (btn) btn.onclick = () => { hideTooltip(); nextTutorialStep(); }; 
+            }, 100);
+        }
+
+        function hideTooltip() { 
+            tooltip.style.display = 'none'; 
+            tooltip.style.opacity = 0; 
+            tooltipArrow.style.display = 'none'; 
+            highlight.style.display = 'none'; 
+        }
+
+        function nextTutorialStep() {
+            state.tutorialStep++;
+            if (state.tutorialStep < tutorialSteps.length) {
+                showTooltipForStep(state.tutorialStep);
+            } else {
+                tutorialFinish();
+            }
+        }
+
+        function startTutorial() {
+            state.tutorialStep = 0;
+            state.inTutorial = true;
+            if (state.claims.length === 0) addInitialClaims();
+            setTimeout(() => showTooltipForStep(0), 280);
+        }
+
+        function tutorialFinish() {
+            hideTooltip();
+            state.inTutorial = false;
+            state.reputation += 6;
+            state.balance += 15;
+            updateHUD(); 
+            pushLog('Tutorial complete. +15 $STrust, +6 Reputation');
+            statusBox.textContent = 'Tutorial Complete';
+            const t = document.createElement('div'); 
+            t.className = 'toast'; 
+            t.textContent = 'Tutorial complete — rewards applied.';
+            document.body.appendChild(t); 
+            setTimeout(() => t.style.opacity = 0, 2600); 
+            setTimeout(() => t.remove(), 3200);
+        }
+
+        // Initial content
+        function addInitialClaims() {
+            addClaim("Oxbilly is secretly bald", "Network");
+            addClaim("Horus is actually an undercover CIA spy", "Network");
+            addClaim("Believers will win with Intuition", "Network");
+            addClaim("W00DS_eth dog is very cute", "Network");
+            addClaim("RChris is a based chad", "Network");
+        }
+
+        // Intro cinematic
+        const introText = `In a world where every click, thought, and word became fragmented across endless silos… 🌐
+Humanity lost its shared sense of truth.
+
+Corporations owned the stories people told. Platforms owned the trust between them. 📜
+
+Then came The Network ✨ — a living web of people 🤝, ideas 💡, and identities 🔮 connected not by authority, but by belief.
+
+Here, trust is a measurable force.
+Every opinion, every discovery becomes an attestation — a signed expression of truth.
+
+You are a Curator of Meaning.
+Listen. Evaluate. Express what you believe by staking $STrust.
+
+Each choice you make shapes the Network's collective understanding.
+Those who are early, accurate, and insightful earn reputation and rewards.
+
+Welcome to the social economy of truth.
+Welcome to The Language of Intuition.`;
+
+        function typewriter(text, el, speed = 16, cb) {
+            const lines = text.split('\n');
+            el.innerHTML = ''; 
+            let li = 0, ci = 0;
+            function step() {
+                if (li >= lines.length) { if (cb) cb(); return; }
+                const line = lines[li];
+                if (ci <= line.length) {
+                    const out = lines.slice(0, li).map(l => `<div>${escapeHtml(l)}</div>`).join('') + `<div>${escapeHtml(line.slice(0, ci))}</div>`;
+                    el.innerHTML = out; 
+                    ci++; 
+                    setTimeout(step, speed);
+                } else { 
+                    li++; 
+                    ci = 0; 
+                    setTimeout(step, 260); 
+                }
+            }
+            step();
+        }
+
+        // Event listeners
+        document.getElementById('beginBtn').onclick = () => {
+            const overlay = document.getElementById('introOverlay'); 
+            overlay.style.transition = 'opacity .6s ease'; 
+            overlay.style.opacity = '0';
+            setTimeout(() => overlay.style.display = 'none', 700);
+            document.getElementById('appRoot').setAttribute('aria-hidden', 'false');
+            addInitialClaims();
+            updateHUD(); 
+            renderClaims(); 
+            drawGraph();
+        };
+
+        document.getElementById('startTutorialBtn').onclick = () => {
+            clearSelection();
+            startTutorial();
+        };
+
+        // Initialize
+        window.addEventListener('load', () => {
+            typewriter(introText, document.getElementById('introText'), 16);
+            document.getElementById('appRoot').setAttribute('aria-hidden', 'true');
+            requestAnimationFrame(() => drawGraph());
+        });
+    </script>
+</body>
+</html>
