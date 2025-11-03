@@ -32,7 +32,6 @@
             overflow: hidden;
         }
 
-        /* Animated subtle gradient background */
         body::before {
             content: "";
             position: fixed;
@@ -46,21 +45,11 @@
         }
 
         @keyframes bgShift {
-            0% { 
-                transform: translateY(0) scale(1) rotate(0deg); 
-                filter: hue-rotate(0deg) saturate(1); 
-            }
-            50% { 
-                transform: translateY(-8px) scale(1.01) rotate(-0.6deg); 
-                filter: hue-rotate(8deg) saturate(1.05); 
-            }
-            100% { 
-                transform: translateY(0) scale(1) rotate(0deg); 
-                filter: hue-rotate(0deg) saturate(1); 
-            }
+            0% { transform: translateY(0) scale(1) rotate(0deg); filter: hue-rotate(0deg) saturate(1); }
+            50% { transform: translateY(-8px) scale(1.01) rotate(-0.6deg); filter: hue-rotate(8deg) saturate(1.05); }
+            100% { transform: translateY(0) scale(1) rotate(0deg); filter: hue-rotate(0deg) saturate(1); }
         }
 
-        /* Main layout */
         .appwrap {
             display: flex;
             height: 100vh;
@@ -126,7 +115,6 @@
             font-size: 22px;
         }
 
-        /* Claims feed */
         .claimFeed {
             flex: 1;
             overflow: auto;
@@ -164,7 +152,6 @@
             text-align: right;
         }
 
-        /* Right panel HUD */
         .wallet {
             display: flex;
             flex-direction: column;
@@ -195,7 +182,6 @@
             color: var(--muted);
         }
 
-        /* Buttons */
         .btn {
             background: linear-gradient(180deg, var(--accent), var(--accent2));
             color: #022126;
@@ -236,7 +222,12 @@
             font-weight: 600;
         }
 
-        /* Claim detail panel */
+        .active-category {
+            background: rgba(68,224,194,0.1) !important;
+            border-color: var(--accent) !important;
+            color: var(--accent) !important;
+        }
+
         .claimDetail {
             margin-top: 8px;
             padding: 12px;
@@ -252,13 +243,12 @@
         }
 
         input[type="range"] {
-            width: 150px;
+            width: 120px;
             background: rgba(255,255,255,0.05);
             border-radius: 8px;
             height: 6px;
         }
 
-        /* Graph canvas */
         .graphWrap {
             display: flex;
             align-items: center;
@@ -274,7 +264,6 @@
             display: block;
         }
 
-        /* Intro overlay */
         #introOverlay {
             position: fixed;
             inset: 0;
@@ -310,7 +299,6 @@
             display: inline-block;
         }
 
-        /* Tutorial tooltip */
         .tutorial-tooltip {
             position: fixed;
             z-index: 12000;
@@ -362,7 +350,6 @@
             filter: drop-shadow(0 6px 14px rgba(0,0,0,0.35));
         }
 
-        /* Highlight box */
         .highlight {
             position: fixed;
             z-index: 11000;
@@ -373,7 +360,6 @@
             transition: all 0.22s cubic-bezier(0.2,0.9,0.2,1);
         }
 
-        /* Toast notifications */
         .toast {
             position: fixed;
             left: 28px;
@@ -388,7 +374,6 @@
             backdrop-filter: blur(8px);
         }
 
-        /* Responsive design */
         @media (max-width: 920px) {
             .left {
                 width: 100%;
@@ -417,7 +402,6 @@
     </style>
 </head>
 <body>
-    <!-- Intro cinematic overlay -->
     <div id="introOverlay" role="dialog" aria-live="polite">
         <div id="introCard">
             <div id="introText"></div>
@@ -427,7 +411,6 @@
         </div>
     </div>
 
-    <!-- Main application -->
     <div class="appwrap" id="appRoot" role="application" aria-hidden="true">
         <div class="left panel">
             <div class="title">🌐 The Language of Intuition</div>
@@ -437,9 +420,19 @@
                 <div class="big">Cooperation, not Competition</div>
             </div>
 
+            <!-- Category Filters -->
+            <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+                <button class="btn ghost small active-category" data-category="All">All</button>
+                <button class="btn ghost small" data-category="Technology">Tech</button>
+                <button class="btn ghost small" data-category="Politics">Politics</button>
+                <button class="btn ghost small" data-category="Entertainment">Entertainment</button>
+                <button class="btn ghost small" data-category="Science">Science</button>
+                <button class="btn ghost small" data-category="Personal">Personal</button>
+                <button class="btn ghost small" data-category="Crypto">Crypto</button>
+            </div>
+
             <div class="panel claimFeed" id="claimFeed" aria-live="polite"></div>
 
-            <!-- Create Claim Button -->
             <button id="createClaimBtn" class="btn ghost" style="margin-top: 8px;">＋ Create Claim</button>
 
             <div style="display:flex;gap:12px;align-items:center;margin-top:8px">
@@ -456,7 +449,10 @@
 
                         <div style="display:flex;gap:8px;align-items:center;margin-top:10px">
                             <input id="stakeRange" type="range" min="1" max="200" value="20" />
-                            <div style="width:44px;text-align:right;font-weight:700" id="stakeValue">20</div>
+                            <div style="display:flex;align-items:center;gap:4px">
+                                <div id="stakeDisplay" style="width:40px;padding:2px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:4px;color:white;text-align:center;cursor:pointer;font-weight:700;font-size:12px;">20</div>
+                                <!-- $STRUST text removed from here -->
+                            </div>
                         </div>
 
                         <div class="bigButtons">
@@ -476,7 +472,7 @@
         </div>
 
         <div class="right panel">
-            <!-- Tutorial panel -->
+            <!-- Tutorial Panel with Faucet -->
             <div class="panel" id="tutorialPanel">
                 <div style="display:flex;justify-content:space-between;align-items:center">
                     <div style="font-weight:700">Tutorial</div>
@@ -486,9 +482,16 @@
                 <div style="margin-top:10px">
                     <button id="startTutorialBtn" class="btn small">Start Tutorial</button>
                 </div>
+                
+                <!-- Claim Faucet -->
+                <div style="margin-top:16px;padding:12px;background:linear-gradient(180deg, rgba(68,224,194,0.08), rgba(106,209,255,0.04));border-radius:8px;border:1px solid rgba(68,224,194,0.1);">
+                    <div style="font-weight:600;color:var(--accent);margin-bottom:6px;">Claim Faucet</div>
+                    <div class="small" style="color:var(--muted);margin-bottom:8px;">Get 500 $STrust to start playing</div>
+                    <button id="claimFaucetBtn" class="btn small" style="width:100%;background:linear-gradient(180deg, rgba(68,224,194,0.3), rgba(106,209,255,0.2));">Claim 500 $STrust</button>
+                </div>
             </div>
 
-            <!-- Balance & reputation -->
+            <!-- Balance & Reputation -->
             <div class="wallet panel">
                 <div class="hud-row"><div class="small">Balance</div><div class="small">Reputation</div></div>
                 <div class="hud-row">
@@ -497,16 +500,23 @@
                 </div>
             </div>
 
-            <!-- Activity log -->
+            <!-- Player Profile -->
+            <div class="panel" id="playerProfilePanel">
+                <!-- Profile content will be rendered here by JavaScript -->
+            </div>
+
+            <!-- Achievements -->
+            <div class="panel">
+                <div style="font-weight:700">Achievements</div>
+                <div id="achievementsList" class="small" style="margin-top:8px">
+                    <div style="color:var(--muted)">No achievements yet</div>
+                </div>
+            </div>
+
+            <!-- Activity Log -->
             <div class="panel">
                 <div style="font-weight:700">Activity Log</div>
                 <div id="log" class="small" style="margin-top:8px">No activity yet.</div>
-            </div>
-
-            <!-- Status -->
-            <div class="panel">
-                <div style="font-weight:700">Status</div>
-                <div style="margin-top:8px"><span id="statusBox" class="small">Idle</span></div>
             </div>
         </div>
     </div>
@@ -517,23 +527,52 @@
     <div id="highlight" class="highlight" style="display:none;"></div>
 
     <script>
-        // Game state and core functionality
+        // ==========================
+        // GAME STATE & INITIALIZATION
+        // ==========================
         const state = { 
             balance: 1000, 
             reputation: 0, 
             claims: [], 
             selectedClaimId: null, 
             inTutorial: false, 
-            tutorialStep: 0 
+            tutorialStep: 0,
+            tutorialCompleted: false,
+            achievements: {
+                'NoviceCurator': { earned: false, progress: 0, target: 1, title: 'Novice Curator', description: 'Complete the tutorial' },
+                'EarlyProphet': { earned: false, progress: 0, target: 3, title: 'Early Prophet', description: 'Be early backer on 3 claims that reach strong consensus' },
+                'TruthSeeker': { earned: false, progress: 0, target: 5, title: 'Truth Seeker', description: 'Maintain 80%+ accuracy across 5 stakes' },
+                'IdeaCatalyst': { earned: false, progress: 0, target: 2, title: 'Idea Catalyst', description: 'Create 2 claims that get 5+ stakers' },
+                'TechGuru': { earned: false, progress: 0, target: 3, title: 'Tech Guru', description: 'Accurately stake on 3 Technology claims' },
+                'PoliticsAnalyst': { earned: false, progress: 0, target: 3, title: 'Politics Analyst', description: 'Accurately stake on 3 Politics claims' }
+            },
+            playerStats: {
+                totalStakes: 0,
+                accurateStakes: 0,
+                claimsCreated: 0,
+                successfulClaims: 0,
+                categoryStakes: { Technology: 0, Politics: 0, Entertainment: 0, Science: 0, Personal: 0, Crypto: 0 },
+                earlyBackerWins: 0,
+                probabilityStakes: 0,
+                accuracyRate: 0,
+                favoriteCategory: 'None',
+                totalEarned: 0,
+                streak: 0
+            },
+            playerProfile: {
+                username: 'AnonymousCurator',
+                bio: 'Exploring the future of truth',
+                joinedDate: new Date().toISOString().split('T')[0]
+            }
         };
 
-        // DOM elements
+        const categories = ['Technology', 'Politics', 'Entertainment', 'Science', 'Personal', 'Crypto'];
         const claimFeed = document.getElementById('claimFeed');
         const balanceEl = document.getElementById('balance');
         const repEl = document.getElementById('reputation');
         const logEl = document.getElementById('log');
-        const statusBox = document.getElementById('statusBox');
         const stakeRange = document.getElementById('stakeRange');
+        const stakeDisplay = document.getElementById('stakeDisplay');
         const stakeValue = document.getElementById('stakeValue');
         const btnAgree = document.getElementById('btnAgree');
         const btnDisagree = document.getElementById('btnDisagree');
@@ -545,16 +584,18 @@
         const highlight = document.getElementById('highlight');
         const graphCanvas = document.getElementById('graph');
         const gctx = graphCanvas.getContext('2d');
+        let nodePositions = [];
+        let isEditingStake = false;
 
-        // Utility functions
+        // ==========================
+        // CORE GAME FUNCTIONS
+        // ==========================
         function updateHUD() { 
             balanceEl.textContent = `${state.balance} $STrust`; 
             repEl.textContent = `${state.reputation}`; 
         }
 
-        function pushLog(msg) { 
-            logEl.textContent = msg; 
-        }
+        function pushLog(msg) { logEl.textContent = msg; }
 
         function escapeHtml(s) { 
             return s.replace(/&/g,'&amp;').replace(/</g,'&lt;'); 
@@ -572,23 +613,299 @@
             return s.length > max ? s.slice(0, max-1) + '…' : s; 
         }
 
-        // Stake slider functionality
-        stakeRange.oninput = () => stakeValue.textContent = stakeRange.value;
+        // ==========================
+        // STAKE MANAGEMENT
+        // ==========================
+        stakeRange.oninput = () => {
+            const value = stakeRange.value;
+            if (!isEditingStake) {
+                stakeDisplay.textContent = value;
+            }
+        };
 
-        // Create Claim Feature
+        stakeDisplay.addEventListener('click', function() {
+            if (isEditingStake) return;
+            
+            isEditingStake = true;
+            const currentValue = this.textContent;
+            
+            this.innerHTML = `<input type="number" id="stakeInput" value="${currentValue}" 
+                min="1" max="200" 
+                style="width:100%;border:none;background:transparent;color:white;text-align:center;outline:none;font-weight:700;font-size:12px;"
+                onblur="saveStakeValue(this.value)"
+                onkeypress="if(event.key==='Enter') this.blur()">`;
+            
+            const input = document.getElementById('stakeInput');
+            input.focus();
+            input.select();
+        });
+
+        function saveStakeValue(value) {
+            let numValue = parseInt(value) || 1;
+            if (numValue < 1) numValue = 1;
+            if (numValue > 200) numValue = 200;
+            
+            stakeRange.value = numValue;
+            stakeDisplay.textContent = numValue;
+            isEditingStake = false;
+        }
+
+        // ==========================
+        // CLAIM MANAGEMENT
+        // ==========================
+        function detectCategory(content) {
+            const lowerContent = content.toLowerCase();
+            if (lowerContent.includes('crypto') || lowerContent.includes('eth') || lowerContent.includes('bitcoin')) return 'Crypto';
+            if (lowerContent.includes('ai') || lowerContent.includes('tech') || lowerContent.includes('software')) return 'Technology';
+            if (lowerContent.includes('movie') || lowerContent.includes('music') || lowerContent.includes('game')) return 'Entertainment';
+            if (lowerContent.includes('government') || lowerContent.includes('election') || lowerContent.includes('policy')) return 'Politics';
+            if (lowerContent.includes('research') || lowerContent.includes('study') || lowerContent.includes('data')) return 'Science';
+            return 'Personal';
+        }
+
+        function addClaim(content, origin = 'Network', category = null, isProbabilityClaim = false, initialProbability = 50) {
+            if (!category) category = detectCategory(content);
+            const finalOrigin = origin === 'You' ? state.playerProfile.username : origin;
+            
+            const c = { 
+                id: Date.now() + Math.floor(Math.random() * 1000), 
+                content, 
+                origin: finalOrigin, 
+                category,
+                attestations: [],
+                isProbabilityClaim: isProbabilityClaim,
+                currentProbability: initialProbability,
+                probabilityHistory: [initialProbability]
+            };
+            
+            state.claims.push(c); 
+            
+            if (origin === 'You') {
+                state.playerStats.claimsCreated++;
+                renderPlayerProfileHeader();
+                
+                setTimeout(() => {
+                    if (c.attestations.length >= 5) {
+                        state.playerStats.successfulClaims++;
+                        if (state.playerStats.successfulClaims >= 2) {
+                            unlockAchievement('IdeaCatalyst');
+                        }
+                    }
+                }, 2000);
+            }
+            
+            renderClaims(); 
+            drawGraph(); 
+            return c;
+        }
+
         function createNewClaim() {
             const claimText = prompt('Enter your new claim:');
             if (claimText && claimText.trim() !== '') {
-                const newClaim = addClaim(claimText.trim(), 'You');
-                pushLog(`You created a new claim: "${claimText}"`);
+                const isProbClaim = confirm('Is this a probability claim? (e.g., "70% chance X happens")\n\nClick OK for probability claim, Cancel for regular claim');
+                
+                let initialProbability = 50;
+                if (isProbClaim) {
+                    const probInput = prompt('Enter initial probability (1-100%):', '50');
+                    initialProbability = Math.min(100, Math.max(1, parseInt(probInput) || 50));
+                }
+                
+                const category = prompt(`Choose category:\n${categories.join(', ')}`, detectCategory(claimText));
+                const finalCategory = categories.includes(category) ? category : detectCategory(claimText);
+                
+                const newClaim = addClaim(
+                    isProbClaim ? `${claimText.trim()} (${initialProbability}%)` : claimText.trim(), 
+                    'You', 
+                    finalCategory,
+                    isProbClaim,
+                    initialProbability
+                );
+                
+                pushLog(`You created ${finalCategory} claim: "${claimText}"`);
                 setTimeout(() => selectClaim(newClaim.id), 100);
             } else if (claimText !== null) {
                 alert('Please enter a valid claim.');
             }
         }
+
         createClaimBtn.onclick = createNewClaim;
 
-        // Reputation Engine
+        function renderClaims(){
+            claimFeed.innerHTML = '';
+            for(const c of state.claims){
+                const d = document.createElement('div'); 
+                d.className = 'claim';
+                
+                const left = document.createElement('div');
+                left.style.display = 'flex'; 
+                left.style.flexDirection = 'column';
+                left.style.flex = '1';
+                
+                const t = document.createElement('div'); 
+                t.className = 'text'; 
+                t.textContent = c.content;
+                
+                if (c.isProbabilityClaim) {
+                    t.style.fontStyle = 'italic';
+                    t.style.color = '#6ad1ff';
+                }
+                
+                const m = document.createElement('div'); 
+                m.className = 'meta'; 
+                const agree = c.attestations.filter(a => a.belief > 0).length; 
+                const dis = c.attestations.filter(a => a.belief < 0).length;
+                
+                let metaText = `${agree} ✓ · ${dis} ✕ • ${c.origin} • <span style="color:var(--accent2)">${c.category}</span>`;
+                
+                if (c.isProbabilityClaim) {
+                    const probColor = c.currentProbability >= 70 ? '#23d3b0' : c.currentProbability >= 30 ? '#6ad1ff' : '#ff6b6b';
+                    metaText += ` • <span style="color:${probColor}; font-weight:600">${c.currentProbability}% likely</span>`;
+                }
+                
+                m.innerHTML = metaText;
+                left.appendChild(t); 
+                left.appendChild(m);
+                d.appendChild(left);
+                
+                if (c.isProbabilityClaim) {
+                    const probBar = document.createElement('div');
+                    probBar.style.width = '60px';
+                    probBar.style.height = '6px';
+                    probBar.style.background = 'rgba(255,255,255,0.1)';
+                    probBar.style.borderRadius = '3px';
+                    probBar.style.overflow = 'hidden';
+                    probBar.style.marginLeft = '10px';
+                    
+                    const probFill = document.createElement('div');
+                    probFill.style.width = `${c.currentProbability}%`;
+                    probFill.style.height = '100%';
+                    probFill.style.background = c.currentProbability >= 50 ? 
+                        'linear-gradient(90deg, var(--accent), var(--accent2))' : 
+                        'linear-gradient(90deg, #ff6b6b, #ff9b9b)';
+                    probFill.style.transition = 'width 0.3s ease';
+                    
+                    probBar.appendChild(probFill);
+                    d.appendChild(probBar);
+                }
+                
+                d.onclick = () => { selectClaim(c.id); };
+                claimFeed.appendChild(d);
+            }
+        }
+
+        function selectClaim(id){
+            const c = state.claims.find(x => x.id === id);
+            if(!c) return;
+            state.selectedClaimId = id;
+            document.getElementById('detailText').textContent = c.content;
+            
+            const pos = c.attestations.filter(a => a.belief > 0).reduce((s, a) => s + a.stake, 0);
+            const neg = c.attestations.filter(a => a.belief < 0).reduce((s, a) => s + a.stake, 0);
+            
+            let detailMeta = `By ${c.origin} · Stakes: ${pos}✓ / ${neg}✕`;
+            if (c.isProbabilityClaim) {
+                detailMeta += ` · Current Probability: ${c.currentProbability}%`;
+            }
+            
+            document.getElementById('detailMeta').textContent = detailMeta;
+            btnAgree.disabled = false; 
+            btnDisagree.disabled = false; 
+            btnObserve.disabled = false; 
+            btnFork.disabled = false;
+            drawGraph();
+        }
+
+        function clearSelection(){
+            state.selectedClaimId = null; 
+            document.getElementById('detailText').textContent = '— Select a claim —'; 
+            document.getElementById('detailMeta').textContent = 'No selection';
+            btnAgree.disabled = true; 
+            btnDisagree.disabled = true; 
+            btnObserve.disabled = true; 
+            btnFork.disabled = true;
+            drawGraph();
+        }
+
+        // ==========================
+        // ATTESTATION & REPUTATION
+        // ==========================
+        function attest(belief){
+            const stake = belief === 0 ? 0 : parseInt(stakeDisplay.textContent);
+            if(stake > state.balance){ alert('Not enough $STrust. Lower stake.'); return; }
+            const c = state.claims.find(x => x.id === state.selectedClaimId); 
+            if(!c){ alert('Select a claim first.'); return; }
+            state.balance -= stake;
+            
+            const attestation = { 
+                user: state.playerProfile.username,
+                belief, 
+                stake, 
+                timestamp: Date.now() 
+            };
+            c.attestations.push(attestation);
+            
+            if (c.isProbabilityClaim) {
+                updateClaimProbability(c);
+            }
+            
+            pushLog(`You ${belief>0?'agreed':'disagreed'} and staked ${stake} $STrust on: "${c.content}"`);
+            updateHUD(); 
+            renderClaims(); 
+            drawGraph(); 
+            
+            if (c.isProbabilityClaim) {
+                state.playerStats.probabilityStakes++;
+            }
+            
+            setTimeout(() => updateAchievements(c, attestation), 100);
+            updateReputation(c.id);
+        }
+
+        btnAgree.onclick = () => attest(1);
+        btnDisagree.onclick = () => attest(-1);
+        btnObserve.onclick = () => { 
+            const c = state.claims.find(x => x.id === state.selectedClaimId); 
+            if(!c) return; 
+            c.attestations.push({user: state.playerProfile.username, belief:0, stake:0, timestamp: Date.now()}); 
+            pushLog('You observed this claim.'); 
+            renderClaims(); 
+            drawGraph(); 
+        };
+        btnFork.onclick = () => { 
+            const c = state.claims.find(x => x.id === state.selectedClaimId); 
+            if(!c) return; 
+            const t = prompt('Edit the forked claim:', c.content.replace(/\(\d+%\)/, '').trim()); 
+            if(t) {
+                const newClaim = addClaim(t, 'You', c.category, c.isProbabilityClaim, c.currentProbability);
+                pushLog(`You forked a claim: "${t}"`);
+                setTimeout(() => selectClaim(newClaim.id), 100);
+            }
+        };
+
+        function updateClaimProbability(claim) {
+            if (!claim.isProbabilityClaim) return;
+            
+            const forStake = claim.attestations.filter(a => a.belief > 0).reduce((s, a) => s + a.stake, 0);
+            const againstStake = claim.attestations.filter(a => a.belief < 0).reduce((s, a) => s + a.stake, 0);
+            const totalStake = forStake + againstStake;
+            
+            if (totalStake > 0) {
+                const rawProbability = (forStake / totalStake) * 100;
+                const weight = Math.min(0.7, totalStake / 500);
+                claim.currentProbability = Math.round(
+                    (rawProbability * weight) + (claim.currentProbability * (1 - weight))
+                );
+                
+                claim.probabilityHistory.push(claim.currentProbability);
+                if (claim.probabilityHistory.length > 20) {
+                    claim.probabilityHistory.shift();
+                }
+            }
+            
+            const baseContent = claim.content.replace(/\(\d+%\)/, '').trim();
+            claim.content = `${baseContent} (${claim.currentProbability}%)`;
+        }
+
         function updateReputation(claimId) {
             const claim = state.claims.find(c => c.id === claimId);
             if (!claim) return;
@@ -622,19 +939,20 @@
                     
                     if (earlyBackers.includes(attestation.user)) {
                         repGain += 5;
-                        if (attestation.user === 'Player') {
+                        if (attestation.user === state.playerProfile.username) {
                             reputationChanges.push(`Early backer bonus! +5 Rep`);
                         }
                     }
                     
-                    if (attestation.user === 'Player') {
+                    if (attestation.user === state.playerProfile.username) {
                         const roundedGain = Math.round(repGain);
                         state.reputation += roundedGain;
+                        state.playerStats.totalEarned += roundedGain;
                         reputationChanges.push(`+${roundedGain} Rep for accurate stake`);
                     }
                     
                 } else {
-                    if (attestation.user === 'Player') {
+                    if (attestation.user === state.playerProfile.username) {
                         state.reputation -= 1;
                         reputationChanges.push(`-1 Rep for incorrect stake`);
                     }
@@ -646,25 +964,359 @@
             }
 
             updateHUD();
+            renderPlayerProfileHeader();
         }
 
-        // Claims management
-        function addClaim(content, origin = 'Network') {
-            const c = { 
-                id: Date.now() + Math.floor(Math.random() * 1000), 
-                content, 
-                origin, 
-                attestations: [] 
+        // ==========================
+        // ACHIEVEMENTS SYSTEM
+        // ==========================
+        function updateAccuracyRate() {
+            if (state.playerStats.totalStakes > 0) {
+                state.playerStats.accuracyRate = (state.playerStats.accurateStakes / state.playerStats.totalStakes) * 100;
+            }
+            
+            let maxStakes = 0;
+            let favoriteCat = 'None';
+            Object.entries(state.playerStats.categoryStakes).forEach(([category, count]) => {
+                if (count > maxStakes) {
+                    maxStakes = count;
+                    favoriteCat = category;
+                }
+            });
+            state.playerStats.favoriteCategory = favoriteCat;
+        }
+
+        function updateAchievements(claim, attestation) {
+            state.playerStats.totalStakes++;
+            
+            const forStake = claim.attestations.filter(a => a.belief > 0).reduce((s, a) => s + a.stake, 0);
+            const againstStake = claim.attestations.filter(a => a.belief < 0).reduce((s, a) => s + a.stake, 0);
+            const winningSide = forStake > againstStake ? 1 : -1;
+            
+            if (attestation.belief === winningSide && attestation.belief !== 0) {
+                state.playerStats.accurateStakes++;
+                
+                if (claim.category && state.playerStats.categoryStakes[claim.category] !== undefined) {
+                    state.playerStats.categoryStakes[claim.category]++;
+                    
+                    if (state.playerStats.categoryStakes[claim.category] >= 3) {
+                        if (claim.category === 'Technology') unlockAchievement('TechGuru');
+                        if (claim.category === 'Politics') unlockAchievement('PoliticsAnalyst');
+                    }
+                }
+                
+                const winningStakers = claim.attestations
+                    .filter(a => a.belief === winningSide && a.stake > 0)
+                    .sort((a, b) => a.timestamp - b.timestamp);
+                
+                const earlyBackerCount = Math.max(1, Math.floor(winningStakers.length * 0.25));
+                const earlyBackers = winningStakers.slice(0, earlyBackerCount).map(a => a.user);
+                
+                if (earlyBackers.includes(state.playerProfile.username)) {
+                    state.playerStats.earlyBackerWins++;
+                    if (state.playerStats.earlyBackerWins >= 3) {
+                        unlockAchievement('EarlyProphet');
+                    }
+                }
+            }
+            
+            updateAccuracyRate();
+            renderPlayerProfileHeader();
+            renderAchievements();
+            
+            const accuracy = state.playerStats.accurateStakes / state.playerStats.totalStakes;
+            if (state.playerStats.totalStakes >= 5 && accuracy >= 0.8) {
+                unlockAchievement('TruthSeeker');
+            }
+        }
+
+        function unlockAchievement(achievementId) {
+            if (state.achievements[achievementId] && !state.achievements[achievementId].earned) {
+                state.achievements[achievementId].earned = true;
+                state.achievements[achievementId].progress = state.achievements[achievementId].target;
+                
+                state.reputation += 10;
+                state.balance += 25;
+                
+                const achievement = state.achievements[achievementId];
+                const t = document.createElement('div'); 
+                t.className = 'toast'; 
+                t.innerHTML = `🏆 <strong>${achievement.title} Unlocked!</strong><br>${achievement.description}`;
+                t.style.background = 'linear-gradient(180deg, rgba(68,224,194,0.15), rgba(106,209,255,0.1))';
+                t.style.border = '1px solid rgba(68,224,194,0.3)';
+                document.body.appendChild(t); 
+                setTimeout(() => t.style.opacity = 0, 4000); 
+                setTimeout(() => t.remove(), 4600);
+                
+                pushLog(`Achievement unlocked: ${achievement.title} (+10 Rep, +25 $STrust)`);
+                updateHUD();
+                renderAchievements();
+                renderPlayerProfileHeader();
+            }
+        }
+
+        function renderAchievements() {
+            const achievementsList = document.getElementById('achievementsList');
+            if (!achievementsList) return;
+            
+            let html = '';
+            Object.entries(state.achievements).forEach(([id, achievement]) => {
+                if (achievement.earned) {
+                    html += `<div style="margin-bottom:6px;color:var(--accent)">🏆 ${achievement.title}</div>`;
+                } else {
+                    const percent = (achievement.progress / achievement.target) * 100;
+                    html += `<div style="margin-bottom:6px;">
+                        <div style="color:var(--muted)">${achievement.title}</div>
+                        <div style="background:rgba(255,255,255,0.05);border-radius:4px;height:4px;margin-top:2px;">
+                            <div style="background:var(--accent2);height:100%;border-radius:4px;width:${percent}%"></div>
+                        </div>
+                        <div style="font-size:11px;color:var(--muted)">${achievement.progress}/${achievement.target}</div>
+                    </div>`;
+                }
+            });
+            
+            achievementsList.innerHTML = html || '<div style="color:var(--muted)">No achievements yet</div>';
+        }
+
+        // ==========================
+        // PLAYER PROFILE SYSTEM
+        // ==========================
+        function renderPlayerProfileHeader() {
+            const profilePanel = document.getElementById('playerProfilePanel');
+            if (!profilePanel) return;
+            
+            profilePanel.innerHTML = `
+                <div style="font-weight:700; display:flex; align-items:center; gap:8px; margin-bottom: 12px;">
+                    <span>👤 ${state.playerProfile.username}</span>
+                    <div style="font-size:10px; background:var(--accent); color:#022126; padding:2px 6px; border-radius:8px; font-weight:600;">
+                        Level ${Math.floor(state.reputation/10) + 1}
+                    </div>
+                    <button id="editProfileBtn" class="btn ghost" style="margin-left: auto; padding: 4px 8px; font-size: 11px;">
+                        Edit
+                    </button>
+                </div>
+                
+                <div style="color: var(--muted); font-size: 12px; margin-bottom: 12px; line-height: 1.4;">
+                    ${state.playerProfile.bio}
+                </div>
+                
+                <div style="font-size: 10px; color: var(--muted); margin-bottom: 12px;">
+                    Joined ${state.playerProfile.joinedDate}
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 11px;">
+                    <div style="color: var(--muted)">Accuracy</div>
+                    <div style="text-align: right; font-weight: 600;">${state.playerStats.accuracyRate.toFixed(1)}%</div>
+                    
+                    <div style="color: var(--muted)">Total Stakes</div>
+                    <div style="text-align: right; font-weight: 600;">${state.playerStats.totalStakes}</div>
+                    
+                    <div style="color: var(--muted)">Claims Created</div>
+                    <div style="text-align: right; font-weight: 600;">${state.playerStats.claimsCreated}</div>
+                    
+                    <div style="color: var(--muted)">Early Wins</div>
+                    <div style="text-align: right; font-weight: 600;">${state.playerStats.earlyBackerWins}</div>
+                    
+                    <div style="color: var(--muted)">Favorite Category</div>
+                    <div style="text-align: right; font-weight: 600; color: var(--accent2)">${state.playerStats.favoriteCategory}</div>
+                    
+                    <div style="color: var(--muted)">Total Earned</div>
+                    <div style="text-align: right; font-weight: 600; color: var(--accent)">${state.playerStats.totalEarned} $STrust</div>
+                </div>
+                
+                <div style="margin-top: 12px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.05);">
+                    <div style="color: var(--muted); font-size: 11px; margin-bottom: 4px;">Category Breakdown</div>
+                    <div id="categoryBreakdown" style="font-size: 10px; color: var(--muted);">
+                        ${renderCategoryBreakdown()}
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('editProfileBtn').onclick = createProfileModal;
+        }
+
+        function renderCategoryBreakdown() {
+            let breakdownHTML = '';
+            
+            if (state.playerStats.probabilityStakes > 0) {
+                breakdownHTML += `
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px; color: var(--accent2);">
+                        <span>Probability Markets</span>
+                        <span>${state.playerStats.probabilityStakes}</span>
+                    </div>
+                `;
+            }
+            
+            Object.entries(state.playerStats.categoryStakes)
+                .sort((a, b) => b[1] - a[1])
+                .forEach(([category, count]) => {
+                    if (count > 0) {
+                        const percentage = state.playerStats.totalStakes > 0 
+                            ? Math.round((count / state.playerStats.totalStakes) * 100) 
+                            : 0;
+                        breakdownHTML += `
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
+                                <span>${category}</span>
+                                <span>${count} (${percentage}%)</span>
+                            </div>
+                        `;
+                    }
+                });
+            
+            return breakdownHTML || '<div style="color: var(--muted);">No category data yet</div>';
+        }
+
+        function createProfileModal() {
+            const modal = document.createElement('div');
+            modal.id = 'profileModal';
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(1,6,12,0.95);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 14000;
+                backdrop-filter: blur(8px);
+            `;
+            
+            modal.innerHTML = `
+                <div style="background: linear-gradient(180deg, var(--panel), rgba(15,23,36,0.95)); 
+                            padding: 24px; 
+                            border-radius: 14px; 
+                            border: 1px solid rgba(255,255,255,0.05);
+                            width: 90%;
+                            max-width: 400px;
+                            box-shadow: 0 20px 60px rgba(0,0,0,0.8);">
+                    <div style="font-size: 20px; font-weight: 700; margin-bottom: 8px; color: var(--accent);">
+                        👤 Create Your Profile
+                    </div>
+                    <div style="color: var(--muted); margin-bottom: 20px; font-size: 14px;">
+                        Customize your identity in the network
+                    </div>
+                    
+                    <div style="margin-bottom: 16px;">
+                        <div style="color: var(--muted); font-size: 13px; margin-bottom: 6px;">Username</div>
+                        <input type="text" id="usernameInput" 
+                               placeholder="Enter your username" 
+                               maxlength="20"
+                               style="width: 100%; 
+                                      padding: 10px; 
+                                      background: rgba(255,255,255,0.05); 
+                                      border: 1px solid rgba(255,255,255,0.1); 
+                                      border-radius: 8px; 
+                                      color: white;
+                                      font-size: 14px;
+                                      outline: none;" 
+                               value="${state.playerProfile.username}">
+                        <div style="color: var(--muted); font-size: 11px; margin-top: 4px;">
+                            This will appear on your claims and stakes
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <div style="color: var(--muted); font-size: 13px; margin-bottom: 6px;">Bio (Optional)</div>
+                        <textarea id="bioInput" 
+                                  placeholder="Tell us about yourself..."
+                                  maxlength="100"
+                                  rows="3"
+                                  style="width: 100%; 
+                                         padding: 10px; 
+                                         background: rgba(255,255,255,0.05); 
+                                         border: 1px solid rgba(255,255,255,0.1); 
+                                         border-radius: 8px; 
+                                         color: white;
+                                         font-size: 14px;
+                                         outline: none;
+                                         resize: vertical;">${state.playerProfile.bio}</textarea>
+                        <div style="color: var(--muted); font-size: 11px; margin-top: 4px;">
+                            ${100 - state.playerProfile.bio.length} characters remaining
+                        </div>
+                    </div>
+                    
+                    <button id="saveProfileBtn" class="btn" style="width: 100%;">
+                        Save Profile
+                    </button>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            const bioInput = document.getElementById('bioInput');
+            const charCounter = bioInput.parentElement.querySelector('div');
+            
+            bioInput.addEventListener('input', function() {
+                const remaining = 100 - this.value.length;
+                charCounter.textContent = `${remaining} characters remaining`;
+                charCounter.style.color = remaining < 20 ? '#ff6b6b' : 'var(--muted)';
+            });
+            
+            document.getElementById('saveProfileBtn').onclick = function() {
+                const username = document.getElementById('usernameInput').value.trim();
+                const bio = document.getElementById('bioInput').value.trim();
+                
+                if (!username) {
+                    alert('Please enter a username');
+                    return;
+                }
+                
+                state.playerProfile.username = username;
+                state.playerProfile.bio = bio || 'No bio yet';
+                
+                state.claims.forEach(claim => {
+                    claim.attestations.forEach(attestation => {
+                        if (attestation.user === 'AnonymousCurator' || attestation.user === 'Player') {
+                            attestation.user = username;
+                        }
+                    });
+                    if (claim.origin === 'You') {
+                        claim.origin = username;
+                    }
+                });
+                
+                renderClaims();
+                renderPlayerProfileHeader();
+                pushLog(`Profile updated: @${username}`);
+                
+                document.body.removeChild(modal);
+                
+                const t = document.createElement('div'); 
+                t.className = 'toast'; 
+                t.innerHTML = `👤 Profile saved! You're now <strong>@${username}</strong>`;
+                document.body.appendChild(t); 
+                setTimeout(() => t.style.opacity = 0, 3000); 
+                setTimeout(() => t.remove(), 3600);
             };
-            state.claims.push(c); 
-            renderClaims(); 
-            drawGraph(); 
-            return c;
         }
 
-        function renderClaims() {
+        // ==========================
+        // CATEGORY FILTERING
+        // ==========================
+        function initCategoryFilter() {
+            const filterButtons = document.querySelectorAll('[data-category]');
+            filterButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const category = this.getAttribute('data-category');
+                    
+                    filterButtons.forEach(b => b.classList.remove('active-category'));
+                    this.classList.add('active-category');
+                    
+                    if (category === 'All') {
+                        renderClaims();
+                    } else {
+                        const filteredClaims = state.claims.filter(c => c.category === category);
+                        renderFilteredClaims(filteredClaims);
+                    }
+                });
+            });
+        }
+
+        function renderFilteredClaims(filteredClaims) {
             claimFeed.innerHTML = '';
-            for (const c of state.claims) {
+            for(const c of filteredClaims){
                 const d = document.createElement('div'); 
                 d.className = 'claim';
                 const left = document.createElement('div');
@@ -677,7 +1329,7 @@
                 m.className = 'meta'; 
                 const agree = c.attestations.filter(a => a.belief > 0).length; 
                 const dis = c.attestations.filter(a => a.belief < 0).length;
-                m.innerHTML = `${agree} ✓ · ${dis} ✕ • ${c.origin}`;
+                m.innerHTML = `${agree} ✓ · ${dis} ✕ • ${c.origin} • <span style="color:var(--accent2)">${c.category}</span>`;
                 left.appendChild(t); 
                 left.appendChild(m);
                 d.appendChild(left);
@@ -686,120 +1338,79 @@
             }
         }
 
-        function selectClaim(id) {
-            const c = state.claims.find(x => x.id === id);
-            if (!c) return;
-            state.selectedClaimId = id;
-            document.getElementById('detailText').textContent = c.content;
-            const pos = c.attestations.filter(a => a.belief > 0).reduce((s, a) => s + a.stake, 0);
-            const neg = c.attestations.filter(a => a.belief < 0).reduce((s, a) => s + a.stake, 0);
-            document.getElementById('detailMeta').textContent = `By ${c.origin} · Stakes: ${pos}✓ / ${neg}✕`;
-            btnAgree.disabled = false; 
-            btnDisagree.disabled = false; 
-            btnObserve.disabled = false; 
-            btnFork.disabled = false;
-            statusBox.textContent = "Selected";
-            drawGraph();
+        // ==========================
+        // FAUCET SYSTEM
+        // ==========================
+        function claimFaucet() {
+            const faucetAmount = 500;
+            state.balance += faucetAmount;
+            updateHUD();
+            pushLog(`Faucet claimed! +${faucetAmount} $STrust`);
+            
+            const faucetBtn = document.getElementById('claimFaucetBtn');
+            faucetBtn.disabled = true;
+            faucetBtn.textContent = 'Claimed!';
+            faucetBtn.style.background = 'rgba(255,255,255,0.05)';
+            faucetBtn.style.color = 'var(--muted)';
+            
+            const t = document.createElement('div'); 
+            t.className = 'toast'; 
+            t.textContent = `+${faucetAmount} $STrust claimed from faucet!`;
+            document.body.appendChild(t); 
+            setTimeout(() => t.style.opacity = 0, 2600); 
+            setTimeout(() => t.remove(), 3200);
         }
 
-        function clearSelection() {
-            state.selectedClaimId = null; 
-            document.getElementById('detailText').textContent = '— Select a claim —'; 
-            document.getElementById('detailMeta').textContent = 'No selection';
-            btnAgree.disabled = true; 
-            btnDisagree.disabled = true; 
-            btnObserve.disabled = true; 
-            btnFork.disabled = true;
-            statusBox.textContent = "Idle"; 
-            drawGraph();
-        }
+        document.getElementById('claimFaucetBtn').onclick = claimFaucet;
 
-        // Attestation functions
-        function attest(belief) {
-            const stake = belief === 0 ? 0 : parseInt(stakeRange.value);
-            if (stake > state.balance) { 
-                alert('Not enough $STrust. Lower stake.'); 
-                return; 
-            }
-            const c = state.claims.find(x => x.id === state.selectedClaimId); 
-            if (!c) { 
-                alert('Select a claim first.'); 
-                return; 
-            }
-            state.balance -= stake;
-            c.attestations.push({ user: 'Player', belief, stake, timestamp: Date.now() });
-            pushLog(`You ${belief > 0 ? 'agreed' : 'disagreed'} and staked ${stake} $STrust on: "${c.content}"`);
-            updateHUD(); 
-            renderClaims(); 
-            drawGraph(); 
-            statusBox.textContent = "Attested";
-            updateReputation(c.id);
-        }
-
-        btnAgree.onclick = () => attest(1);
-        btnDisagree.onclick = () => attest(-1);
-        btnObserve.onclick = () => { 
-            const c = state.claims.find(x => x.id === state.selectedClaimId); 
-            if (!c) return; 
-            c.attestations.push({ user: 'Player', belief: 0, stake: 0, timestamp: Date.now() }); 
-            pushLog('You observed this claim.'); 
-            renderClaims(); 
-            drawGraph(); 
-        };
-        btnFork.onclick = () => { 
-            const c = state.claims.find(x => x.id === state.selectedClaimId); 
-            if (!c) return; 
-            const t = prompt('Edit the forked claim:', c.content); 
-            if (t) addClaim(t, 'Player'); 
-        };
-
-        // Semantic map visualization
-        let nodePositions = [];
-        function drawGraph() {
+        // ==========================
+        // SEMANTIC MAP
+        // ==========================
+        function drawGraph(){
             graphCanvas.width = graphCanvas.clientWidth;
             graphCanvas.height = graphCanvas.clientHeight;
-            gctx.clearRect(0, 0, graphCanvas.width, graphCanvas.height);
+            gctx.clearRect(0,0,graphCanvas.width,graphCanvas.height);
             const nodes = state.claims;
-            if (nodes.length === 0) return;
-            const cx = graphCanvas.width / 2, cy = graphCanvas.height / 2;
-            const r = Math.min(cx, cy) - 80;
+            if(nodes.length === 0) return;
+            const cx = graphCanvas.width/2, cy = graphCanvas.height/2;
+            const r = Math.min(cx,cy) - 80;
             
-            if (nodePositions.length !== nodes.length) {
-                nodePositions = nodes.map((n, i) => {
-                    const angle = (i / nodes.length) * Math.PI * 2 - Math.PI / 2;
+            if(nodePositions.length !== nodes.length){
+                nodePositions = nodes.map((n,i)=>{
+                    const angle = (i / nodes.length) * Math.PI * 2 - Math.PI/2;
                     const baseX = cx + Math.cos(angle) * r;
                     const baseY = cy + Math.sin(angle) * r;
-                    return { baseX, baseY, angle, phase: Math.random() * Math.PI * 2, jitter: 3 + Math.random() * 8 };
+                    return { baseX, baseY, angle, phase: Math.random()*Math.PI*2, jitter: 3 + Math.random()*8 };
                 });
             }
             
-            const t = Date.now() / 1000;
-            nodes.forEach((n, i) => {
+            const t = Date.now()/1000;
+            nodes.forEach((n,i)=>{
                 const posObj = nodePositions[i];
-                const fx = Math.cos(t * 0.6 + posObj.phase) * posObj.jitter;
-                const fy = Math.sin(t * 0.8 + posObj.phase) * posObj.jitter;
+                const fx = Math.cos(t*0.6 + posObj.phase) * posObj.jitter;
+                const fy = Math.sin(t*0.8 + posObj.phase) * posObj.jitter;
                 const x = posObj.baseX + fx;
                 const y = posObj.baseY + fy;
                 
-                const posStake = n.attestations.filter(a => a.belief > 0).reduce((s, a) => s + a.stake, 0);
-                const negStake = n.attestations.filter(a => a.belief < 0).reduce((s, a) => s + a.stake, 0);
+                const posStake = n.attestations.filter(a=>a.belief>0).reduce((s,a)=>s+a.stake,0);
+                const negStake = n.attestations.filter(a=>a.belief<0).reduce((s,a)=>s+a.stake,0);
                 const strength = Math.min(1, (posStake + negStake) / 400);
                 
                 let color = '#6ad1ff'; 
-                if (posStake > negStake) color = '#23d3b0'; 
-                else if (negStake > posStake) color = '#ff6b6b';
+                if(posStake>negStake) color = '#23d3b0'; 
+                else if(negStake>posStake) color = '#ff6b6b';
                 
                 gctx.beginPath(); 
-                gctx.moveTo(cx, cy); 
-                gctx.lineTo(x, y);
-                gctx.strokeStyle = hexToRgba(color, 0.06 + strength * 0.45); 
-                gctx.lineWidth = 10 * (0.2 + strength); 
+                gctx.moveTo(cx,cy); 
+                gctx.lineTo(x,y);
+                gctx.strokeStyle = hexToRgba(color, 0.06 + strength*0.45); 
+                gctx.lineWidth = 10*(0.2 + strength); 
                 gctx.stroke();
                 
-                const nodeR = 14 + Math.min(20, (posStake + negStake) / 30);
+                const nodeR = 14 + Math.min(20, (posStake+negStake)/30);
                 gctx.beginPath(); 
-                gctx.arc(x, y, nodeR, 0, Math.PI * 2);
-                gctx.fillStyle = hexToRgba(color, 0.14 + strength * 0.5); 
+                gctx.arc(x,y,nodeR,0,Math.PI*2);
+                gctx.fillStyle = hexToRgba(color, 0.14 + strength*0.5); 
                 gctx.fill();
                 gctx.strokeStyle = color; 
                 gctx.lineWidth = 2; 
@@ -809,32 +1420,34 @@
                 gctx.font = '12px Inter, Arial';
                 gctx.fillText(shorten(n.content, 28), x + nodeR + 10, y + 4);
                 
-                if (state.selectedClaimId === n.id) {
+                if(state.selectedClaimId === n.id){
                     gctx.beginPath(); 
-                    gctx.arc(x, y, nodeR + 12, 0, Math.PI * 2); 
+                    gctx.arc(x,y,nodeR+12,0,Math.PI*2); 
                     gctx.strokeStyle = 'rgba(140,220,200,0.12)'; 
                     gctx.lineWidth = 6; 
                     gctx.stroke();
                 }
             });
             
-            requestAnimationFrame(() => drawGraph());
+            requestAnimationFrame(()=> drawGraph());
         }
 
-        // Tutorial system
+        // ==========================
+        // TUTORIAL SYSTEM
+        // ==========================
         const tutorialSteps = [
-            { id: 'balance', title: 'Your Balance', body: ['This is your $STrust balance — the currency of conviction.', 'Stake $STrust to back claims you believe in.'], targetSelector: '.wallet .balance' },
-            { id: 'reputation', title: 'Reputation', body: ['Reputation signals how credible the Network considers you.', 'Accurate early signals grow your reputation.'], targetSelector: '.wallet .rep' },
-            { id: 'activity', title: 'Activity Log', body: ['See your recent actions here.', 'It tracks what you staked and why.'], targetSelector: '#log' },
-            { id: 'status', title: 'Status', body: ['Your current status appears here (e.g., Attested, Idle).', 'Useful to track your progress.'], targetSelector: '#statusBox' },
-            { id: 'map', title: 'Semantic Map', body: ['The map visualizes claims and consensus.', 'Nodes and links reflect how the Network thinks.'], targetSelector: '#graph' },
-            { id: 'create', title: 'Create Your Own', body: ['Click "Create Claim" to add your own ideas to the network.', 'This is how new knowledge enters the system.'], targetSelector: '#createClaimBtn' },
-            { id: 'end', title: 'You\'re ready', body: ['You are now a Novice Curator.', 'Cooperate, curate, and shape shared truth. 🌐✨'], targetSelector: '#claimFeed' }
+            { id:'balance', title:'Your Balance', body:['This is your $STrust balance — the currency of conviction.','Stake $STrust to back claims you believe in.'], targetSelector:'.wallet .balance' },
+            { id:'reputation', title:'Reputation', body:['Reputation signals how credible the Network considers you.','Accurate early signals grow your reputation.'], targetSelector:'.wallet .rep' },
+            { id:'activity', title:'Activity Log', body:['See your recent actions here.','It tracks what you staked and why.'], targetSelector:'#log' },
+            { id:'status', title:'Status', body:['Your current status appears here (e.g., Attested, Idle).','Useful to track your progress.'], targetSelector:'#playerProfilePanel' },
+            { id:'map', title:'Semantic Map', body:['The map visualizes claims and consensus.','Nodes and links reflect how the Network thinks.'], targetSelector:'#graph' },
+            { id:'create', title:'Create Your Own', body:['Click "Create Claim" to add your own ideas to the network.','This is how new knowledge enters the system.'], targetSelector:'#createClaimBtn' },
+            { id:'end', title:'You\'re ready', body:['You are now a Novice Curator.','Cooperate, curate, and shape shared truth. 🌐✨'], targetSelector:'#claimFeed' }
         ];
 
-        function showTooltipForStep(stepIndex) {
+        function showTooltipForStep(stepIndex){
             const step = tutorialSteps[stepIndex];
-            if (!step) return hideTooltip();
+            if(!step) return hideTooltip();
             const target = document.querySelector(step.targetSelector) || document.querySelector('body');
             const rect = target.getBoundingClientRect();
             
@@ -845,7 +1458,7 @@
             const margin = 12;
             let left = rect.right + margin;
             let top = rect.top;
-            if (left + 340 > window.innerWidth) {
+            if(left + 340 > window.innerWidth){
                 left = rect.left;
                 top = rect.bottom + margin;
                 tooltipArrow.style.borderTop = '10px solid rgba(6,10,14,0.98)';
@@ -859,7 +1472,7 @@
                 tooltipArrow.style.top = (rect.top + 16) + 'px';
             }
 
-            if (top + 160 > window.innerHeight) top = Math.max(12, window.innerHeight - 180);
+            if(top + 160 > window.innerHeight) top = Math.max(12, window.innerHeight - 180);
             tooltip.style.left = left + 'px';
             tooltip.style.top = top + 'px';
 
@@ -867,66 +1480,78 @@
             highlight.style.display = 'block';
             highlight.style.left = (rect.left - pad) + 'px';
             highlight.style.top = (rect.top - pad) + 'px';
-            highlight.style.width = (rect.width + pad * 2) + 'px';
-            highlight.style.height = (rect.height + pad * 2) + 'px';
+            highlight.style.width = (rect.width + pad*2) + 'px';
+            highlight.style.height = (rect.height + pad*2) + 'px';
 
             tooltipArrow.style.display = 'block';
 
             setTimeout(() => { 
                 const btn = document.getElementById('tooltipNext'); 
-                if (btn) btn.onclick = () => { hideTooltip(); nextTutorialStep(); }; 
+                if(btn) btn.onclick = () => { hideTooltip(); nextTutorialStep(); }; 
             }, 100);
         }
 
-        function hideTooltip() { 
-            tooltip.style.display = 'none'; 
-            tooltip.style.opacity = 0; 
-            tooltipArrow.style.display = 'none'; 
-            highlight.style.display = 'none'; 
+        function hideTooltip(){ 
+            tooltip.style.display='none'; 
+            tooltip.style.opacity=0; 
+            tooltipArrow.style.display='none'; 
+            highlight.style.display='none'; 
         }
 
-        function nextTutorialStep() {
+        function nextTutorialStep(){
             state.tutorialStep++;
-            if (state.tutorialStep < tutorialSteps.length) {
+            if(state.tutorialStep < tutorialSteps.length){
                 showTooltipForStep(state.tutorialStep);
             } else {
                 tutorialFinish();
             }
         }
 
-        function startTutorial() {
+        function startTutorial(){
             state.tutorialStep = 0;
             state.inTutorial = true;
-            if (state.claims.length === 0) addInitialClaims();
-            setTimeout(() => showTooltipForStep(0), 280);
+            if(state.claims.length === 0) addInitialClaims();
+            setTimeout(()=> showTooltipForStep(0), 280);
         }
 
-        function tutorialFinish() {
+        function tutorialFinish(){
             hideTooltip();
             state.inTutorial = false;
-            state.reputation += 6;
-            state.balance += 15;
-            updateHUD(); 
-            pushLog('Tutorial complete. +15 $STrust, +6 Reputation');
-            statusBox.textContent = 'Tutorial Complete';
-            const t = document.createElement('div'); 
-            t.className = 'toast'; 
-            t.textContent = 'Tutorial complete — rewards applied.';
-            document.body.appendChild(t); 
-            setTimeout(() => t.style.opacity = 0, 2600); 
-            setTimeout(() => t.remove(), 3200);
+            
+            if (!state.tutorialCompleted) {
+                state.reputation += 6;
+                state.balance += 15;
+                state.tutorialCompleted = true;
+                unlockAchievement('NoviceCurator');
+                updateHUD(); 
+                pushLog('Tutorial complete. +15 $STrust, +6 Reputation');
+                
+                const t = document.createElement('div'); 
+                t.className = 'toast'; 
+                t.textContent = 'Tutorial complete — rewards applied.';
+                document.body.appendChild(t); 
+                setTimeout(() => t.style.opacity = 0, 2600); 
+                setTimeout(() => t.remove(), 3200);
+            } else {
+                pushLog('Tutorial completed (rewards already claimed)');
+            }
         }
 
-        // Initial content
-        function addInitialClaims() {
-            addClaim("Oxbilly is secretly bald", "Network");
-            addClaim("Horus is actually an undercover CIA spy", "Network");
-            addClaim("Believers will win with Intuition", "Network");
-            addClaim("W00DS_eth dog is very cute", "Network");
-            addClaim("RChris is a based chad", "Network");
+        document.getElementById('startTutorialBtn').onclick = startTutorial;
+
+        // ==========================
+        // INITIAL CONTENT & SETUP
+        // ==========================
+        function addInitialClaims(){
+            addClaim("Oxbilly is secretly bald", "Network", "Personal");
+            addClaim("Horus is actually an undercover CIA spy", "Network", "Politics");
+            addClaim("Believers will win with Intuition", "Network", "Crypto");
+            addClaim("W00DS_eth dog is very cute", "Network", "Personal");
+            addClaim("RChris is a based chad", "Network", "Personal");
+            addClaim("There's a 75% chance Bitcoin hits $100K this year", "Network", "Crypto", true, 75);
+            addClaim("45% probability the new AI model passes the Turing test", "Network", "Technology", true, 45);
         }
 
-        // Intro cinematic
         const introText = `In a world where every click, thought, and word became fragmented across endless silos… 🌐
 Humanity lost its shared sense of truth.
 
@@ -946,14 +1571,14 @@ Those who are early, accurate, and insightful earn reputation and rewards.
 Welcome to the social economy of truth.
 Welcome to The Language of Intuition.`;
 
-        function typewriter(text, el, speed = 16, cb) {
+        function typewriter(text, el, speed = 16, cb){
             const lines = text.split('\n');
             el.innerHTML = ''; 
             let li = 0, ci = 0;
-            function step() {
-                if (li >= lines.length) { if (cb) cb(); return; }
+            function step(){
+                if (li >= lines.length){ if(cb) cb(); return; }
                 const line = lines[li];
-                if (ci <= line.length) {
+                if (ci <= line.length){
                     const out = lines.slice(0, li).map(l => `<div>${escapeHtml(l)}</div>`).join('') + `<div>${escapeHtml(line.slice(0, ci))}</div>`;
                     el.innerHTML = out; 
                     ci++; 
@@ -967,28 +1592,37 @@ Welcome to The Language of Intuition.`;
             step();
         }
 
-        // Event listeners
         document.getElementById('beginBtn').onclick = () => {
             const overlay = document.getElementById('introOverlay'); 
             overlay.style.transition = 'opacity .6s ease'; 
             overlay.style.opacity = '0';
             setTimeout(() => overlay.style.display = 'none', 700);
-            document.getElementById('appRoot').setAttribute('aria-hidden', 'false');
+            document.getElementById('appRoot').setAttribute('aria-hidden','false');
             addInitialClaims();
             updateHUD(); 
             renderClaims(); 
             drawGraph();
         };
 
-        document.getElementById('startTutorialBtn').onclick = () => {
-            clearSelection();
-            startTutorial();
-        };
-
-        // Initialize
+        // ==========================
+        // INITIALIZATION
+        // ==========================
         window.addEventListener('load', () => {
             typewriter(introText, document.getElementById('introText'), 16);
-            document.getElementById('appRoot').setAttribute('aria-hidden', 'true');
+            document.getElementById('appRoot').setAttribute('aria-hidden','true');
+            
+            setTimeout(() => {
+                renderPlayerProfileHeader();
+                renderAchievements();
+                initCategoryFilter();
+                updateAccuracyRate();
+                
+                if (!localStorage.getItem('hasSeenProfileModal')) {
+                    setTimeout(createProfileModal, 2000);
+                    localStorage.setItem('hasSeenProfileModal', 'true');
+                }
+            }, 1000);
+            
             requestAnimationFrame(() => drawGraph());
         });
     </script>
